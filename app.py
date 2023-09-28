@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.app_context().push()
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 
@@ -10,15 +11,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
 
-# Create a flag to track whether tables have been created
-tables_created = False
-
-@app.before_request
-def create_tables():
-    global tables_created
-    if not tables_created:
-        db.create_all()
-        tables_created = True
+# Create the database tables
+db.create_all()
 
 @app.route('/users', methods=['GET'])
 def get_users():
